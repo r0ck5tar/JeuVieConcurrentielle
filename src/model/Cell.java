@@ -50,17 +50,17 @@ public class Cell implements Runnable{
         }
     }
 
-    public void applyNextStep() throws InterruptedException {
-        while(readerSemaphore.availablePermits() >0) wait();
+    public synchronized void applyNextStep() throws InterruptedException {
+        if(readerSemaphore.availablePermits() > 0) wait();
 
         if(alive != willLive) {
             setAlive(willLive);
             //System.out.print("Cell [" + xCoordinate + ", " + yCoordinate +"] is now ");
             //if(alive) System.out.println("alive"); else System.out.println("dead");
         }
-        //readerSemaphore.release(8);
-        readerSemaphore.release();
+        readerSemaphore.release(8);
         generation++;
+        notifyAll();
         sleep(500);
     }
 
