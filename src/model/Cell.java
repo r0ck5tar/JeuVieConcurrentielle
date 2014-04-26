@@ -18,7 +18,7 @@ public class Cell implements Runnable{
     private boolean willLive = false;
     private ArrayList<Cell> neighbours;
     private CellChangedListener listener;
-    private Semaphore readerSemaphore = new Semaphore(8, true);
+    private int reads = 0;
     private int generation = 0;
 
     @Override
@@ -28,6 +28,7 @@ public class Cell implements Runnable{
                 calculateNextStep();
                 System.out.println(this);
                 applyNextStep();
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -51,17 +52,17 @@ public class Cell implements Runnable{
     }
 
     public synchronized void applyNextStep() throws InterruptedException {
-        if(readerSemaphore.availablePermits() > 0) wait();
+        while(reads < 8) wait();
 
         if(alive != willLive) {
             setAlive(willLive);
             //System.out.print("Cell [" + xCoordinate + ", " + yCoordinate +"] is now ");
             //if(alive) System.out.println("alive"); else System.out.println("dead");
         }
-        readerSemaphore.release(8);
+        reads = 0;
         generation++;
-        notifyAll();
         sleep(500);
+        notifyAll();
     }
 
     public boolean getStatus() {
@@ -69,8 +70,11 @@ public class Cell implements Runnable{
     }
 
     public synchronized boolean isAlive() throws InterruptedException {
-        readerSemaphore.acquire();
+        while(reads == 8) wait();
+        reads++;
+        notify();
         return this.alive;
+
     }
     public void setAlive(boolean alive) { this.alive = alive; listener.cellChanged(new CellChangedEvent(this));}
 
@@ -85,8 +89,7 @@ public class Cell implements Runnable{
     @Override
     public String toString(){
         String id = Integer.toString(xCoordinate) + ", " + Integer.toString(yCoordinate)
-                  + "\tavailable permits: " + readerSemaphore.availablePermits()
-                  + "\tgeneration: " + generation;
+                  + "\treads: " + reads + "\tgeneration: " + generation;
         if(alive) return  id + " - alive";
         else      return  id + " - dead";
     }
