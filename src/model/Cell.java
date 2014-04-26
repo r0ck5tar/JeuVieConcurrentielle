@@ -61,7 +61,7 @@ public class Cell implements Runnable{
         }
         reads = 0;
         generation++;
-        sleep(1000);
+        sleep(500);
         notifyAll();
     }
 
@@ -72,7 +72,7 @@ public class Cell implements Runnable{
     public synchronized boolean isAlive() throws InterruptedException {
         while(reads == 8) wait();
         reads++;
-        notify();
+        notifyAll();
         return this.alive;
 
     }
