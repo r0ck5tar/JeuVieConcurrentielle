@@ -21,7 +21,7 @@ public class Cell implements Runnable{
     private int reads = 0;
     private int generation = 0;
 
-    @Override
+    @Override 
     public void run() {
         while(true) {
             try {
