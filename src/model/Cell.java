@@ -37,7 +37,9 @@ public class Cell implements Runnable{
 
     private int livingNeighboursCount() throws InterruptedException {
         int livingNeighbours = 0;
-        for(Cell c : neighbours) { if (c.isAlive()) livingNeighbours++;}
+        for(Cell c : neighbours) {
+            if (c.isAlive()) livingNeighbours++;
+        }
         return livingNeighbours;
     }
 
@@ -51,23 +53,20 @@ public class Cell implements Runnable{
         }
     }
 
-    public synchronized void applyNextStep() throws InterruptedException {
-        while(reads < 8) wait();
+    public  void applyNextStep() throws InterruptedException {
 
-        if(alive != willLive) {
-            setAlive(willLive);
-            //System.out.print("Cell [" + xCoordinate + ", " + yCoordinate +"] is now ");
-            //if(alive) System.out.println("alive"); else System.out.println("dead");
-        }
-        reads = 0;
+        setAlive(willLive);
+        //System.out.print("Cell [" + xCoordinate + ", " + yCoordinate +"] is now ");
+        //if(alive) System.out.println("alive"); else System.out.println("dead");
+
         generation++;
-        sleep(500);
-        notifyAll();
+        sleep(100);
     }
 
     public boolean getStatus() {
         return this.alive;
     }
+    public void setStatus(boolean alive) { this.alive = alive; listener.cellChanged(new CellChangedEvent(this)); }
 
     public synchronized boolean isAlive() throws InterruptedException {
         while(reads == 8) wait();
@@ -76,7 +75,18 @@ public class Cell implements Runnable{
         return this.alive;
 
     }
-    public void setAlive(boolean alive) { this.alive = alive; listener.cellChanged(new CellChangedEvent(this));}
+    public synchronized void setAlive(boolean alive) throws InterruptedException {
+        while(reads < 8) wait();
+
+        if(this.alive != alive) {
+        this.alive = alive;
+        listener.cellChanged(new CellChangedEvent(this));
+        }
+
+        reads = 0;
+        notifyAll();
+
+    }
 
     public void setCoordinates(int x, int y)     {xCoordinate = x; yCoordinate = y;}
     public int getxCoordinate() { return xCoordinate; }

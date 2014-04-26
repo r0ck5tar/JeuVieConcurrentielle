@@ -45,7 +45,7 @@ public class Grid {
         else{
             for(int x = 0; x < pattern.getDimension(); x++) {
                 for(int y = 0; y < pattern.getDimension(); y++) {
-                    grid[x + xOffset][y + yOffset].setAlive(pattern.read(x, y));
+                    grid[x + xOffset][y + yOffset].setStatus(pattern.read(x, y));
                 }
             }
         }
