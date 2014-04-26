@@ -35,8 +35,12 @@ public class Cell implements Runnable{
         }
     }
 
+    /*
+        Compte le nombre de cellules voisines vivantes.
+     */
     private int livingNeighboursCount() throws InterruptedException {
         int livingNeighbours = 0;
+
         for(Cell c : neighbours) {
             if (c.isAlive()) livingNeighbours++;
         }
@@ -60,14 +64,26 @@ public class Cell implements Runnable{
         //if(alive) System.out.println("alive"); else System.out.println("dead");
 
         generation++;
-        sleep(100);
+        /* ça semble marcher correctement avec sleep 400 (et même 100 si on a le Pattern plus petit
+            comme l'oscilateur (voir resources/Patterns.txt)
+            Si on diminue cette valeur, on verra dans la sortie du console que la valeur de generation
+            ne sont plus synchro (certaines cellules peuvent être au n+3iem pas, et d'autres au nieme pas
+            par exemple
+        */
+        sleep(400);
     }
 
-    public boolean getStatus() {
-        return this.alive;
-    }
+    /*
+        getStatus and setStatus sont l'équivalent de isAlive et setAlive, à part qu'ils sont pas synchro.
+        Elles sont appelées dans Grid (pour l'initialisation - d'où la raison pour la quelle elle sont pas
+        synchro)
+     */
+    public boolean getStatus() { return this.alive;}
     public void setStatus(boolean alive) { this.alive = alive; listener.cellChanged(new CellChangedEvent(this)); }
 
+    /*
+     Ne permet la lecture de l'état d'une cellule que si read != 8 (la raison m'échappe actuellement)
+    */
     public synchronized boolean isAlive() throws InterruptedException {
         while(reads == 8) wait();
         reads++;
@@ -75,6 +91,11 @@ public class Cell implements Runnable{
         return this.alive;
 
     }
+
+    /*
+    Ne permet la modification de l'état d'une cellule que si read == 8 (c-à-d que la cellule a été lue
+    8 fois - donc par tous ses voisins)
+    */
     public synchronized void setAlive(boolean alive) throws InterruptedException {
         while(reads < 8) wait();
 
