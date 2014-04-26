@@ -47,9 +47,9 @@ public class Cell implements Runnable{
         return livingNeighbours;
     }
 
+    /*Determine the next step (whether the cell will live or not) based on the
+      number of living neighbours and applying the rules of the Game of Life. */
     public void calculateNextStep() throws InterruptedException {
-        /*Determine the next step (whether the cell will live or not) based on the
-          number of living neighbours and applying the rules of the Game of Life. */
         switch(livingNeighboursCount()) {
             case 2: willLive = alive; break;
             case 3: willLive = true; break;
@@ -64,7 +64,7 @@ public class Cell implements Runnable{
         //if(alive) System.out.println("alive"); else System.out.println("dead");
 
         generation++;
-        /* ça semble marcher correctement avec sleep 400 (et même 100 si on a le Pattern plus petit
+        /*  ça semble marcher correctement avec sleep 400 (et même 100 si on a un Pattern plus petit
             comme l'oscilateur (voir resources/Patterns.txt)
             Si on diminue cette valeur, on verra dans la sortie du console que la valeur de generation
             ne sont plus synchro (certaines cellules peuvent être au n+3iem pas, et d'autres au nieme pas
@@ -74,8 +74,8 @@ public class Cell implements Runnable{
     }
 
     /*
-        getStatus and setStatus sont l'équivalent de isAlive et setAlive, à part qu'ils sont pas synchro.
-        Elles sont appelées dans Grid (pour l'initialisation - d'où la raison pour la quelle elle sont pas
+        getStatus and setStatus sont les équivalentes de isAlive et setAlive, à part qu'elles sont pas synchro.
+        Elles sont appelées dans Grid (pour l'initialisation - d'où la raison pour la quelle elles sont pas
         synchro)
      */
     public boolean getStatus() { return this.alive;}
