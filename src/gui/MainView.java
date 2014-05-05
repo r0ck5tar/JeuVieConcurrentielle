@@ -1,6 +1,5 @@
 package gui;
 
-import sun.applet.Main;
 
 import javax.swing.*;
 

@@ -13,7 +13,7 @@ public class GridView extends JPanel implements CellChangedListener {
 
     public GridView(int width, int height) {
         setLayout(new GridLayout(width, height, 0 , 0));
-        setVisible(true);
+        //setVisible(true);
         cells = new JLabel[width][height];
 
         for(int i = 0; i<width; i++) {
@@ -29,6 +29,7 @@ public class GridView extends JPanel implements CellChangedListener {
 
     @Override
     public void cellChanged(CellChangedEvent cellChange) {
+        //cells[cellChange.getX()][cellChange.getY()].setText(cellChange.isAlive()? "x":" ");
         cells[cellChange.getX()][cellChange.getY()].setIcon(cellChange.isAlive()? livingCell:deadCell);
     }
 }

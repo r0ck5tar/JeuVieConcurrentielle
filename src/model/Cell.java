@@ -21,12 +21,38 @@ public class Cell implements Runnable{
     private int reads = 0;
     private int generation = 0;
 
+    private boolean [] readerCheck = {
+    		false,
+    		false,
+    		false,
+    		false,
+    		false,
+    		false,
+    		false,
+    		false
+    		};
+    
+    private void readerCheckersToFalse() {
+    	for(int i = 0 ; i < readerCheck.length ; i++) {
+    		readerCheck[i] = false;
+    	}
+    }
+    
+    private boolean readerCheckersOk() {
+    	for(int i = 0 ; i < readerCheck.length ; i++) {
+    		if(!readerCheck[i]) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+    
     @Override
     public void run() {
         while(true) {
             try {
                 calculateNextStep();
-                System.out.println(this);
+                //System.out.println(this);
                 applyNextStep();
 
             } catch (InterruptedException e) {
@@ -42,7 +68,7 @@ public class Cell implements Runnable{
         int livingNeighbours = 0;
 
         for(Cell c : neighbours) {
-            if (c.isAlive()) livingNeighbours++;
+            if (c.isAlive(this)) livingNeighbours++;
         }
         return livingNeighbours;
     }
@@ -70,7 +96,7 @@ public class Cell implements Runnable{
             ne sont plus synchro (certaines cellules peuvent être au n+3iem pas, et d'autres au nieme pas
             par exemple
         */
-        sleep(400);
+        sleep(50);
     }
 
     /*
@@ -84,12 +110,20 @@ public class Cell implements Runnable{
     /*
      Ne permet la lecture de l'état d'une cellule que si read != 8 (la raison m'échappe actuellement)
     */
-    public synchronized boolean isAlive() throws InterruptedException {
-        while(reads == 8) wait();
+    public synchronized boolean isAlive(Cell c) throws InterruptedException {
+    	
+    	int index = this.neighbours.indexOf(c);
+    	if(!readerCheck[index]) {
+    		readerCheck[index] = true;
+    	} else {
+    		while(readerCheck[index]) wait();
+    		readerCheck[index] = true;
+    	}
+    	
         reads++;
+        
         notifyAll();
         return this.alive;
-
     }
 
     /*
@@ -97,13 +131,19 @@ public class Cell implements Runnable{
     8 fois - donc par tous ses voisins)
     */
     public synchronized void setAlive(boolean alive) throws InterruptedException {
-        while(reads < 8) wait();
-
+        //while(reads < 8) wait();
+    	while(!readerCheckersOk()) {
+    		wait();
+    	}
+    	
         if(this.alive != alive) {
         this.alive = alive;
         listener.cellChanged(new CellChangedEvent(this));
         }
-
+        
+        if(reads!=8) System.out.println(reads);
+        
+        readerCheckersToFalse();
         reads = 0;
         notifyAll();
 
