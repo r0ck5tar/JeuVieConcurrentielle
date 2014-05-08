@@ -18,19 +18,9 @@ public class Cell implements Runnable{
     private boolean willLive = false;
     private ArrayList<Cell> neighbours;
     private CellChangedListener listener;
-    private int reads = 0;
     private int generation = 0;
 
-    private boolean [] readerCheck = {
-    		false,
-    		false,
-    		false,
-    		false,
-    		false,
-    		false,
-    		false,
-    		false
-    		};
+    private boolean [] readerCheck = {false, false, false, false, false, false, false, false};
     
     private void readerCheckersToFalse() {
     	for(int i = 0 ; i < readerCheck.length ; i++) {
@@ -119,8 +109,6 @@ public class Cell implements Runnable{
     		while(readerCheck[index]) wait();
     		readerCheck[index] = true;
     	}
-    	
-        reads++;
         
         notifyAll();
         return this.alive;
@@ -140,11 +128,8 @@ public class Cell implements Runnable{
         this.alive = alive;
         listener.cellChanged(new CellChangedEvent(this));
         }
-        
-        if(reads!=8) System.out.println(reads);
-        
+
         readerCheckersToFalse();
-        reads = 0;
         notifyAll();
 
     }
@@ -160,7 +145,7 @@ public class Cell implements Runnable{
     @Override
     public String toString(){
         String id = Integer.toString(xCoordinate) + ", " + Integer.toString(yCoordinate)
-                  + "\treads: " + reads + "\tgeneration: " + generation;
+                  + "\tgeneration: " + generation;
         if(alive) return  id + " - alive";
         else      return  id + " - dead";
     }
